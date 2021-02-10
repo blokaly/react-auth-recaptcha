@@ -5,7 +5,8 @@ var express = require('express'),
     port = process.env.REACT_APP_SEVER_PORT || 4000;
 
 var fetch = require('node-fetch');
-var SECRET_KEY = process.env.SECRET_KEY;
+var SECRET_KEY_V3 = process.env.SECRET_KEY_V3;
+var SECRET_KEY_V2 = process.env.SECRET_KEY_V2;
 
 // enable CORS using npm package
 var cors = require('cors');
@@ -23,7 +24,7 @@ app.get('/', (req, res) => {
 
 // verify reCAPTCHA response
 app.post('/verify', (req, res) => {
-    var VERIFY_URL = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${req.body['g-recaptcha-response']}`;
+    var VERIFY_URL = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY_V3}&response=${req.body['g-recaptcha-response']}`;
     return fetch(VERIFY_URL, { method: 'POST' })
         .then(res => res.json())
         .then(json => res.send(json));

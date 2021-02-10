@@ -4,7 +4,8 @@ import logoImg from "../logo.svg";
 import { Card, Logo, Form, Input, Button, Error } from "../components/AuthForm";
 import { useAuth } from "../context/auth";
 
-const SITE_KEY=process.env.REACT_APP_SITE_KEY;
+const SITE_KEY_V3=process.env.REACT_APP_SITE_KEY_V3;
+const SITE_KEY_V2=process.env.REACT_APP_SITE_KEY_V2;
 const SERVER_PORT=process.env.REACT_APP_SEVER_PORT;
 
 function Login(props) {
@@ -21,14 +22,21 @@ function Login(props) {
         e.preventDefault();
         setLoading(true);
         window.grecaptcha.ready(() => {
-            window.grecaptcha.execute(SITE_KEY, { action: 'login' }).then(token => {
+            // V3
+            window.grecaptcha.execute(SITE_KEY_V3, { action: 'login' }).then(token => {
                 submitData(token);
             });
+
+            // V2
+            // var token = window.grecaptcha.getResponse();
+            // submitData(token);
         });
+
+
     }
 
     useEffect(() => {
-        const loadScriptByURL = (id, url, callback) => {
+        const loadScriptByURL = (id, url, isAsync, isDefer, callback) => {
             const isScriptExist = document.getElementById(id);
 
             if (!isScriptExist) {
@@ -36,6 +44,12 @@ function Login(props) {
                 script.type = "text/javascript";
                 script.src = url;
                 script.id = id;
+                if (isAsync) {
+                    script.async = true
+                }
+                if (isDefer) {
+                    script.defer = true
+                }
                 script.onload = function () {
                     if (callback) callback();
                 };
@@ -46,9 +60,15 @@ function Login(props) {
         }
 
         // load the script by passing the URL
-        loadScriptByURL("recaptcha-key", `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`, function () {
+        // V3
+        loadScriptByURL("recaptcha-key", `https://www.google.com/recaptcha/api.js?render=${SITE_KEY_V3}`, false, false, function () {
             console.log("Script loaded!");
         });
+
+        // V2
+        // loadScriptByURL("recaptcha-key", 'https://www.google.com/recaptcha/api.js', true, true,function () {
+        //     console.log("Script loaded!");
+        // });
     }, []);
 
 
@@ -103,6 +123,8 @@ function Login(props) {
                     placeholder="password"
                 />
                 <Button onClick={handleOnClick} disabled={loading}>{loading ? 'Submitting...' : 'Sign In'}</Button>
+                {/* Only for V2 */}
+                {/*<div className="g-recaptcha" data-sitekey={SITE_KEY_V2} />*/}
             </Form>
             <Link to="/signup">Don't have an account?</Link>
             { isError &&<Error>The username or password provided were incorrect!</Error> }
